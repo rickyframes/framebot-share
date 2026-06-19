@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Opening in FrameBot…</title>
+  <style>
+    body { font-family: sans-serif; background: #1a1a1a; color: #eee;
+           display: flex; align-items: center; justify-content: center;
+           height: 100vh; margin: 0; flex-direction: column; gap: 12px; }
+    p { color: #aaa; font-size: 14px; }
+    a { color: #7c6aff; }
+  </style>
+</head>
+<body>
+  <h2>Opening in FrameBot…</h2>
+  <p id="msg">Launching, please wait.</p>
+  <script>
+    const hash = window.location.hash.slice(1);
+    const msg  = document.getElementById("msg");
+
+    if (!hash) {
+      msg.textContent = "No share token found in this link.";
+    } else {
+      const url = "framebot://import?token=" + encodeURIComponent(hash);
+      window.location.href = url;
+      setTimeout(() => {
+        msg.innerHTML =
+          "Nothing happened? Make sure FrameBot is installed. " +
+          "<a href='https://discord.gg/YaCSZEvCbW'>Join our Discord</a>.";
+      }, 2500);
+    }
+  </script>
+</body>
+</html>
