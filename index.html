@@ -30,9 +30,7 @@
     if (!hash) {
       msg.textContent = "No Atlas link found in this address.";
     } else {
-      // framebot:// on purpose: every Atlas build understands it (newer
-      // builds also register atlas://, older installs only framebot://).
-      window.location.href = "framebot://import?token=" + encodeURIComponent(hash);
+      window.location.href = "atlas://import?token=" + encodeURIComponent(hash);
 
       // The browser's "Open Atlas?" prompt (or Atlas itself) takes focus
       // away from this tab: close once that has happened and the tab is
