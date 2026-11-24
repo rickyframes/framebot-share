@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Opening in FrameBot…</title>
+  <title>Opening in Atlas…</title>
   <style>
     body { font-family: sans-serif; background: #1a1a1a; color: #eee;
            display: flex; align-items: center; justify-content: center;
@@ -12,22 +12,53 @@
   </style>
 </head>
 <body>
-  <h2>Opening in FrameBot…</h2>
+  <h2 id="head">Opening in Atlas…</h2>
   <p id="msg">Launching, please wait.</p>
   <script>
     const hash = window.location.hash.slice(1);
+    const head = document.getElementById("head");
     const msg  = document.getElementById("msg");
 
+    // Close this tab once Atlas has taken over. Browsers only allow it for
+    // a tab that was opened by a link click and has no history (e.g. from
+    // Slack / email); otherwise it quietly does nothing and the
+    // "you can close this tab" line below stays.
+    function tryClose() {
+      try { window.close(); } catch (e) {}
+    }
+
     if (!hash) {
-      msg.textContent = "No share token found in this link.";
+      msg.textContent = "No Atlas link found in this address.";
     } else {
-      const url = "framebot://import?token=" + encodeURIComponent(hash);
-      window.location.href = url;
+      // framebot:// on purpose: every Atlas build understands it (newer
+      // builds also register atlas://, older installs only framebot://).
+      window.location.href = "framebot://import?token=" + encodeURIComponent(hash);
+
+      // The browser's "Open Atlas?" prompt (or Atlas itself) takes focus
+      // away from this tab: close once that has happened and the tab is
+      // left behind. Never sooner than 1.5 s, so the prompt isn't cut off.
+      let left = false;
+      const start = Date.now();
+      window.addEventListener("blur", () => { left = true; });
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) left = true;
+      });
+      const timer = setInterval(() => {
+        if (left && Date.now() - start > 1500) {
+          clearInterval(timer);
+          head.textContent = "Opened in Atlas";
+          msg.textContent = "You can close this tab.";
+          tryClose();
+        }
+      }, 300);
+
       setTimeout(() => {
-        msg.innerHTML =
-          "Nothing happened? Make sure FrameBot is installed. " +
-          "<a href='https://discord.gg/YaCSZEvCbW'>Join our Discord</a>.";
-      }, 2500);
+        if (!left) {
+          msg.innerHTML =
+            "Nothing happened? Make sure Atlas is installed. " +
+            "<a href='https://discord.gg/YaCSZEvCbW'>Join our Discord</a>.";
+        }
+      }, 4000);
     }
   </script>
 </body>
